@@ -10,12 +10,12 @@ function App() {
   return (
     <div>
       {/* Render NavBar only if the current route is not '/login' */}
-      {location.pathname !== '/login' && <NavBar />}
+      {location.pathname !== '/' && <NavBar />}
       
       <Routes>
         <Route path="/example" element={<Example />} />
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/landing" element={<Landing />} />
+        <Route path="/" element={<Login />} />
       </Routes>
     </div>
   );
