@@ -7,6 +7,7 @@ import Navbar from './components/Navbar';
 import Iteminfo from './components/Iteminfo';
 import Userinfo from './components/Userinfo';
 import Addnewproduct from './components/Addnewproduct';
+import EditProductDialog from './components/EditProductDialog';
 
 function App() {
   const location = useLocation();
@@ -23,6 +24,7 @@ function App() {
         <Route path="/iteminfo/:id" element={<Iteminfo />} />
         <Route path="/userinfo" element={<Userinfo />} />
         <Route path="/addnewproduct" element={<Addnewproduct />} />
+        <Route path="/edit" element={<EditProductDialog />} />
       </Routes>
     </div>
   );

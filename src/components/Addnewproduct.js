@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import ip from './ip';
 // Function to generate a unique 7-digit ID
 const generateUniqueId = () => Math.floor(Math.random() * 9000000) + 1000000; // Generates a 7-digit number
 
@@ -49,7 +49,7 @@ export default function Addnewproduct() {
         const renamedFile = new File([file], newFileName, { type: file.type });
   
         // Step 1: Get presigned URL for the file upload
-        const { data } = await axios.post('http://localhost:3000/geturl', { image: renamedFile.name }, {
+        const { data } = await axios.post(ip + '/geturl', { image: renamedFile.name }, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -69,7 +69,7 @@ export default function Addnewproduct() {
         setFormData((prevFormData) => ({ ...prevFormData, imageSrc: imageUrl }));
   
         // Step 4: Submit the auction item with the new image URL
-        await axios.post('http://localhost:3000/newproduct', {
+        await axios.post(ip + '/newproduct', {
           id: formData.id,
           name: formData.name,
           bidPrice: "$" + formData.bidPrice,
@@ -109,19 +109,6 @@ export default function Addnewproduct() {
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold text-gray-900 mb-6">Add Auction Item</h2>
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* <div>
-          <label htmlFor="id" className="block text-sm font-medium text-gray-900">
-            Product ID
-          </label>
-          <input
-            id="id"
-            name="id"
-            type="text"
-            value={formData.id} // Display the generated ID
-            className="block w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm"
-            readOnly
-          />
-        </div> */}
 
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-900">

@@ -1,17 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import ip from './ip';
 
 export default function Login() {
     const navigate = useNavigate();
-    const [email,setEmail] = useState("");
-    const [password,setPassword] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState(""); // State to hold the error message
 
     const handleClick = async (e) => {
         e.preventDefault(); // Prevent the default form submission
     
         try {
-            const response = await axios.post('http://localhost:3000/login', {
+            const response = await axios.post(ip + '/login', {
                 email: email,
                 password: password,
             });
@@ -21,25 +23,20 @@ export default function Login() {
                 localStorage.setItem('token', token); // Store the token in local storage
                 navigate('/landing'); // Navigate to the landing page
             } else {
-                console.log('Login failed');
-                // Handle other status codes or errors
+                setError('Login failed');
             }
         } catch (error) {
-            console.error('An error occurred during login:', error);
-            // Handle the error (e.g., show an error message)
+            if (error.response && error.response.status === 400) {
+                setError('Invalid email or password'); // Set the error message from the server response
+            } else {
+                console.error('An error occurred during login:', error);
+                setError('An unexpected error occurred. Please try again later.');
+            }
         }
     };
 
     return (
       <>
-        {/*
-          This example requires updating your template:
-  
-          ```
-          <html class="h-full bg-white">
-          <body class="h-full">
-          ```
-        */}
         <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
           <div className="sm:mx-auto sm:w-full sm:max-w-sm">
             <img
@@ -94,6 +91,13 @@ export default function Login() {
                   />
                 </div>
               </div>
+
+              {/* Error message */}
+              {error && (
+                <div className="text-red-600 text-sm">
+                  {error}
+                </div>
+              )}
   
               <div>
                 <button
@@ -116,4 +120,4 @@ export default function Login() {
         </div>
       </>
     )
-  }
+}

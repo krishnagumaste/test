@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import ip from './ip'
 
 export default function BidDialog({ isOpen, onClose, _id, name, endDate, bidPrice, bidHistory, imageUrl }) {
     const [newBid, setNewBid] = useState('');
@@ -26,7 +27,7 @@ export default function BidDialog({ isOpen, onClose, _id, name, endDate, bidPric
         try {
             const token = localStorage.getItem('token');
 
-            const response = await fetch('http://localhost:3000/placebid', {
+            const response = await fetch(ip + '/placebid', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

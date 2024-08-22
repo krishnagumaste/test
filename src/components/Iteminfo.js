@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import BidDialog from './Biddialog'; // Import the dialog component
+import ip from './ip';
 
 export default function ItemInfo() {
     const { id } = useParams();
@@ -11,7 +12,7 @@ export default function ItemInfo() {
     useEffect(() => {
         const token = localStorage.getItem('token');
 
-        fetch('http://localhost:3000/product', {
+        fetch(ip + '/product', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -22,7 +23,7 @@ export default function ItemInfo() {
         .then(response => response.json())
         .then(productData => {
             setData(productData);
-            return fetch('http://localhost:3000/imageurl', {
+            return fetch(ip + '/imageurl', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

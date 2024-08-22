@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, memo } from "react";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
+import ip from "./ip";
 
 // Memoized ProductCard Component to prevent unnecessary re-renders
 const ProductCard = memo(({ product }) => {
@@ -37,7 +38,7 @@ export default function Example() {
 
         // Fetch products
         const response = await axios.post(
-          'http://localhost:3000/products',
+          ip + '/products',
           {},
           {
             headers: {
@@ -50,7 +51,7 @@ export default function Example() {
         // Fetch presigned URLs for each product image
         const productsWithUrls = await Promise.all(response.data.map(async (product) => {
           const imageUrlResponse = await axios.post(
-            'http://localhost:3000/imageurl',
+            ip + '/imageurl',
             { image: product.imageSrc },
             {
               headers: {

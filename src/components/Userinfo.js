@@ -1,35 +1,37 @@
-import { PaperClipIcon } from '@heroicons/react/20/solid'
+import { PaperClipIcon } from '@heroicons/react/20/solid';
 import { useState, useEffect } from "react";
 import axios from 'axios';
+import EditProductDialog from './EditProductDialog';
+import ip from './ip';
 
 export default function Userinfo() {
   const [userData, setUserData] = useState();
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [productToEdit, setProductToEdit] = useState(null);
+
+  const fetchUserInfo = async () => {
+    try {
+      const token = localStorage.getItem('token');
+
+      const response = await axios.post(
+        ip + '/userpageinfo',
+        {},
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      setUserData(response.data);
+      
+    } catch (error) {
+      console.error('Error fetching user information:', error);
+    }
+  };
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const token = localStorage.getItem('token');
-
-        // Fetch user information and products from the backend
-        const response = await axios.post(
-          'http://localhost:3000/userpageinfo',
-          {},
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-
-        // Update state with the fetched user data
-        setUserData(response.data);
-        
-      } catch (error) {
-        console.error('Error fetching user information:', error);
-      }
-    };
-
     fetchUserInfo();
   }, []);
 
@@ -45,10 +47,9 @@ export default function Userinfo() {
     if (confirmation) {
       try {
         const token = localStorage.getItem('token');
-  
-        // Fetch user information and products from the backend
+
         const response = await axios.post(
-          'http://localhost:3000/cancelbid',
+          ip + '/cancelbid',
           { _id: _id },
           {
             headers: {
@@ -57,18 +58,27 @@ export default function Userinfo() {
             },
           }
         );
-  
+
         alert('Auction item deleted successfully!');
-        
-        // Refresh the page after deletion
         window.location.reload();
       } catch (error) {
         alert('Failed to delete the auction item.');
         console.error('Error deleting item:', error);
       }
     }
-  }
-  
+  };
+
+  const openEditDialog = (product) => {
+    setProductToEdit(product);
+    setIsEditOpen(true);
+  };
+
+  const closeEditDialog = async () => {
+    setIsEditOpen(false);
+    setProductToEdit(null);
+    // Refresh user data after closing the edit dialog
+    await fetchUserInfo();
+  };
 
   return (
     <div className='mx-10'>
@@ -128,9 +138,9 @@ export default function Userinfo() {
                       </a>
                     </div>
                     <div className="ml-4 flex-shrink-0">
-                      <a href={`/iteminfo/${product._id}`} className="font-medium text-indigo-600 hover:text-indigo-500">
+                      <button onClick={() => openEditDialog(product)} className="font-medium text-indigo-600 hover:text-indigo-500">
                         Edit
-                      </a>
+                      </button>
                     </div>
                     <div className="ml-4 flex-shrink-0">
                       <button onClick={() => handleDelete(product._id)} className="font-medium text-red-600 hover:text-red-500">
@@ -144,6 +154,15 @@ export default function Userinfo() {
           </div>
         </dl>
       </div>
+
+      {/* Render the EditDialog component */}
+      {isEditOpen && (
+        <EditProductDialog
+          isOpen={isEditOpen}
+          onClose={closeEditDialog}
+          product={productToEdit}
+        />
+      )}
     </div>
-  )
+  );
 }

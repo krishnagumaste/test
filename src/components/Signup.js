@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import ip from './ip';
 
 export default function Signup() {
     const navigate = useNavigate();
@@ -12,7 +13,7 @@ export default function Signup() {
         e.preventDefault(); // Prevent the default form submission
     
         try {
-            const response = await axios.post('http://localhost:3000/signup', {
+            const response = await axios.post(ip + '/signup', {
                 username: username,
                 email: email,
                 password: password,
