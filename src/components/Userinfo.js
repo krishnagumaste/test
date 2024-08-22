@@ -37,7 +37,38 @@ export default function Userinfo() {
     return <div>Loading...</div>;
   }
 
-  const { user, products } = userData;
+  const { user, products, currentProducts } = userData;
+
+  const handleDelete = async (_id) => {
+    const confirmation = window.confirm('Are you sure you want to delete this auction item?');
+    
+    if (confirmation) {
+      try {
+        const token = localStorage.getItem('token');
+  
+        // Fetch user information and products from the backend
+        const response = await axios.post(
+          'http://localhost:3000/cancelbid',
+          { _id: _id },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+  
+        alert('Auction item deleted successfully!');
+        
+        // Refresh the page after deletion
+        window.location.reload();
+      } catch (error) {
+        alert('Failed to delete the auction item.');
+        console.error('Error deleting item:', error);
+      }
+    }
+  }
+  
 
   return (
     <div className='mx-10'>
@@ -72,6 +103,39 @@ export default function Userinfo() {
                       <a href={`/iteminfo/${product._id}`} className="font-medium text-indigo-600 hover:text-indigo-500">
                         View Details
                       </a>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </dd>
+          </div>
+          <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+            <dt className="text-sm font-medium leading-6 text-gray-900">Your Products</dt>
+            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+              <ul role="list" className="divide-y divide-gray-100 rounded-md border border-gray-200">
+                {currentProducts.map(product => (
+                  <li key={product._id} className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
+                    <div className="flex w-0 flex-1 items-center">
+                      <PaperClipIcon aria-hidden="true" className="h-5 w-5 flex-shrink-0 text-gray-400" />
+                      <div className="ml-4 flex min-w-0 flex-1 gap-2">
+                        <span className="truncate font-medium">{product.name}</span>
+                        <span className="flex-shrink-0 text-gray-400">Bid Price: {product.bidPrice}</span>
+                      </div>
+                    </div>
+                    <div className="ml-4 flex-shrink-0">
+                      <a href={`/iteminfo/${product._id}`} className="font-medium text-indigo-600 hover:text-indigo-500">
+                        View Details
+                      </a>
+                    </div>
+                    <div className="ml-4 flex-shrink-0">
+                      <a href={`/iteminfo/${product._id}`} className="font-medium text-indigo-600 hover:text-indigo-500">
+                        Edit
+                      </a>
+                    </div>
+                    <div className="ml-4 flex-shrink-0">
+                      <button onClick={() => handleDelete(product._id)} className="font-medium text-red-600 hover:text-red-500">
+                        Delete
+                      </button>
                     </div>
                   </li>
                 ))}
