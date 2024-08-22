@@ -1,22 +1,31 @@
 import { useState, useEffect, useMemo, memo } from "react";
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 
 // Memoized ProductCard Component to prevent unnecessary re-renders
-const ProductCard = memo(({ product }) => (
-  <a key={product.id} href="#" className="group">
-    <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
-      <img
-        alt={product.imageAlt}
-        src={product.imageUrl}
-        loading="lazy" // Lazy loading to improve performance
-        className="h-full w-full object-cover object-center group-hover:opacity-75"
-      />
-    </div>
-    <h3 className="mt-4 text-sm text-gray-700">{product.name}</h3>
-    <p className="mt-1 text-lg font-medium text-gray-900">Bid Price: {product.bidPrice}</p>
-    <p className="mt-1 text-sm text-gray-500">End Date: {product.endDate}</p>
-  </a>
-));
+const ProductCard = memo(({ product }) => {
+  const navigate = useNavigate(); // Initialize navigate function
+
+  const handleClick = () => {
+    navigate(`/iteminfo/${product._id}`); // Navigate to the product detail page using _id
+  };
+
+  return (
+    <a key={product.id} href="#" onClick={handleClick} className="group">
+      <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+        <img
+          alt={product.imageAlt}
+          src={product.imageUrl}
+          loading="lazy" // Lazy loading to improve performance
+          className="h-full w-full object-cover object-center group-hover:opacity-75"
+        />
+      </div>
+      <h3 className="mt-4 text-sm text-gray-700">{product.name}</h3>
+      <p className="mt-1 text-lg font-medium text-gray-900">Bid Price: {product.bidPrice}</p>
+      <p className="mt-1 text-sm text-gray-500">End Date: {product.endDate}</p>
+    </a>
+  );
+});
 
 export default function Example() {
   const [products, setProducts] = useState([]);
