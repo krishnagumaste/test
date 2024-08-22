@@ -4,6 +4,8 @@ import Landing from './components/Landing';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import Navbar from './components/Navbar';
+import Iteminfo from './components/Iteminfo';
+import Userinfo from './components/Userinfo';
 
 function App() {
   const location = useLocation();
@@ -17,6 +19,8 @@ function App() {
         <Route path="/landing" element={<Landing />} />
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/iteminfo/:id" element={<Iteminfo />} />
+        <Route path="/userinfo" element={<Userinfo />} />
       </Routes>
     </div>
   );

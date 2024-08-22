@@ -1,72 +1,73 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo, memo } from "react";
 import axios from 'axios';
 
-const products = [
-  {
-    id: 1,
-    name: 'Earthen Bottle',
-    href: '#',
-    price: '$48',
-    imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-01.jpg',
-    imageAlt: 'Tall slender porcelain bottle with natural clay textured body and cork stopper.',
-  },
-  {
-    id: 2,
-    name: 'Nomad Tumbler',
-    href: '#',
-    price: '$35',
-    imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-02.jpg',
-    imageAlt: 'Olive drab green insulated bottle with flared screw lid and flat top.',
-  },
-  {
-    id: 3,
-    name: 'Focus Paper Refill',
-    href: '#',
-    price: '$89',
-    imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-03.jpg',
-    imageAlt: 'Person using a pen to cross a task off a productivity paper card.',
-  },
-  {
-    id: 4,
-    name: 'Machined Mechanical Pencil',
-    href: '#',
-    price: '$35',
-    imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg',
-    imageAlt: 'Hand holding black machined steel mechanical pencil with brass tip and top.',
-  },
-  // More products...
-]
+// Memoized ProductCard Component to prevent unnecessary re-renders
+const ProductCard = memo(({ product }) => (
+  <a key={product.id} href="#" className="group">
+    <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+      <img
+        alt={product.imageAlt}
+        src={product.imageUrl}
+        loading="lazy" // Lazy loading to improve performance
+        className="h-full w-full object-cover object-center group-hover:opacity-75"
+      />
+    </div>
+    <h3 className="mt-4 text-sm text-gray-700">{product.name}</h3>
+    <p className="mt-1 text-lg font-medium text-gray-900">Bid Price: {product.bidPrice}</p>
+    <p className="mt-1 text-sm text-gray-500">End Date: {product.endDate}</p>
+  </a>
+));
 
 export default function Example() {
-  const [product, setProduct] = useState([]);
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Get the token from localStorage
         const token = localStorage.getItem('token');
 
-        // Perform the Axios POST request with the Authorization header
+        // Fetch products
         const response = await axios.post(
           'http://localhost:3000/products',
-          {}, // You can pass any data here as the request body if needed
+          {},
           {
             headers: {
-              'Authorization': `Bearer ${token}`, // Add token here
-              'Content-Type': 'application/json', // Ensure JSON content type
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
             },
           }
         );
 
-        console.log(response.data);
-        setProduct(response.data);
+        // Fetch presigned URLs for each product image
+        const productsWithUrls = await Promise.all(response.data.map(async (product) => {
+          const imageUrlResponse = await axios.post(
+            'http://localhost:3000/imageurl',
+            { image: product.imageSrc },
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+
+          const Url = imageUrlResponse.data.url; // Assuming the URL is returned in the 'url' field
+
+          return { ...product, imageUrl: Url };
+        }));
+
+        // Update state with the products including the presigned URLs
+        setProducts(productsWithUrls);
       } catch (error) {
         console.error('Error fetching products:', error);
       }
     };
 
     fetchProducts();
-  }, []);
+  }, []); // Empty dependency array to ensure this runs only once on mount
+
+  // Memoize the products array to prevent unnecessary re-renders
+  const memoizedProducts = useMemo(() => products, [products]);
 
   return (
     <div className="bg-white">
@@ -74,21 +75,11 @@ export default function Example() {
         <h2 className="sr-only">Products</h2>
 
         <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-          {products.map((product) => (
-            <a key={product.id} href={product.href} className="group">
-              <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
-                <img
-                  alt={product.imageAlt}
-                  src={product.imageSrc}
-                  className="h-full w-full object-cover object-center group-hover:opacity-75"
-                />
-              </div>
-              <h3 className="mt-4 text-sm text-gray-700">{product.name}</h3>
-              <p className="mt-1 text-lg font-medium text-gray-900">{product.price}</p>
-            </a>
+          {memoizedProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </div>
     </div>
-  )
+  );
 }
